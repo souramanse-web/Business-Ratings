@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Ratings</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>⭐ Business Ratings</h1>
+      <p class="tagline">Discover and rate local businesses</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Add Business Form -->
+    <section class="card add-business-section">
+      <h2>Add a Business</h2>
+      <form id="add-business-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="biz-name">Business Name <span class="required">*</span></label>
+            <input type="text" id="biz-name" placeholder="e.g. The Coffee House" required />
+          </div>
+          <div class="form-group">
+            <label for="biz-category">Category <span class="required">*</span></label>
+            <input type="text" id="biz-category" placeholder="e.g. Café" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="biz-address">Address</label>
+            <input type="text" id="biz-address" placeholder="e.g. 10 High Street, Town" />
+          </div>
+          <div class="form-group">
+            <label for="biz-description">Description</label>
+            <input type="text" id="biz-description" placeholder="Short description" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Business</button>
+        <p id="add-business-msg" class="form-msg" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Business Listing -->
+    <section>
+      <h2>All Businesses</h2>
+      <div id="business-list" class="business-grid" aria-live="polite">
+        <p class="loading">Loading businesses…</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Business Detail Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 Business Ratings. Built with ❤️.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
