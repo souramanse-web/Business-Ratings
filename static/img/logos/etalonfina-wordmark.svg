@@ -1,0 +1,11 @@
+<svg width="900" height="260" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ÉtalonFina Capital Wordmark Logo">
+  <rect width="900" height="260" rx="24" fill="#0D0D0D"/>
+  <g transform="translate(46,52)">
+    <rect x="0" y="0" width="154" height="154" rx="24" fill="#0A1F44"/>
+    <path d="M28 104H126" stroke="#009E49" stroke-width="12" stroke-linecap="round"/>
+    <path d="M34 94L66 64L90 88L122 52" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M77 24L84 45H106L88 58L95 79L77 66L59 79L66 58L48 45H70L77 24Z" fill="#FCD116"/>
+  </g>
+  <text x="230" y="118" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="56" font-weight="700">ÉtalonFina</text>
+  <text x="230" y="178" fill="#D4AF37" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="600">Capital</text>
+</svg>

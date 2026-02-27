@@ -1,0 +1,13 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ÉtalonFina Monogram Logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A1F44"/>
+      <stop offset="100%" stop-color="#132F63"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#D4AF37" stroke-width="16"/>
+  <path d="M176 164H336V196H214V244H316V276H214V348H176V164Z" fill="#FFFFFF"/>
+  <path d="M246 164H356V196H284V236H344V268H284V348H246V164Z" fill="#D4AF37"/>
+  <path d="M336 316L380 272L396 288L344 340L308 304L324 288L336 300L380 256" fill="#4CAF50"/>
+</svg>

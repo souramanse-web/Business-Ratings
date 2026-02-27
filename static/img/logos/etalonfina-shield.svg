@@ -1,0 +1,7 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ÉtalonFina Shield Logo">
+  <rect width="512" height="512" rx="96" fill="#111111"/>
+  <path d="M256 84L392 132V250C392 336 331 410 256 436C181 410 120 336 120 250V132L256 84Z" fill="#0A1F44" stroke="#FCD116" stroke-width="14"/>
+  <path d="M170 296L228 238L274 284L348 210" fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M168 332H344" stroke="#FCD116" stroke-width="14" stroke-linecap="round"/>
+  <path d="M256 132L270 176H316L278 202L292 246L256 220L220 246L234 202L196 176H242L256 132Z" fill="#EF2B2D"/>
+</svg>
