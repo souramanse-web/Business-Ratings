@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Business Rating App{% endblock %}
+
+{% block content %}
+<div>
+    <h1>Admin Dashboard</h1>
+    
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin: 2rem 0;">
+        <div class="card" style="text-align: center;">
+            <h3 style="font-size: 2.5rem; color: #3498db;">{{ sectors_count }}</h3>
+            <p>Sectors</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <h3 style="font-size: 2.5rem; color: #27ae60;">{{ businesses_count }}</h3>
+            <p>Businesses</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <h3 style="font-size: 2.5rem; color: #f39c12;">{{ ratings_count }}</h3>
+            <p>Ratings</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <h3 style="font-size: 2.5rem; color: #e74c3c;">{{ users_count }}</h3>
+            <p>Users</p>
+        </div>
+    </div>
+    
+    <div class="card" style="margin: 2rem 0;">
+        <h2>Admin Functions</h2>
+        <p>Use the API endpoints below to manage sectors and businesses:</p>
+        <ul style="list-style: none; padding: 0;">
+            <li>📊 <strong>GET /admin/sectors</strong> - List all sectors</li>
+            <li>➕ <strong>POST /admin/sectors</strong> - Create new sector</li>
+            <li>📦 <strong>GET /admin/businesses</strong> - List all businesses</li>
+            <li>➕ <strong>POST /admin/businesses</strong> - Create new business</li>
+            <li>🗑️ <strong>DELETE /admin/business/{id}</strong> - Delete a business</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h2>Create New Sector</h2>
+        <form id="sectorForm">
+            <div class="form-group">
+                <label for="sectorName">Sector Name:</label>
+                <input type="text" id="sectorName" required>
+            </div>
+            <div class="form-group">
+                <label for="sectorDesc">Description:</label>
+                <textarea id="sectorDesc"></textarea>
+            </div>
+            <button type="submit" class="btn">Create Sector</button>
+        </form>
+    </div>
+    
+    <div class="card">
+        <h2>Create New Business</h2>
+        <form id="businessForm">
+            <div class="form-group">
+                <label for="businessName">Business Name:</label>
+                <input type="text" id="businessName" required>
+            </div>
+            <div class="form-group">
+                <label for="businessSector">Sector:</label>
+                <select id="businessSector" required>
+                    <option value="">Select a sector</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="businessDesc">Description:</label>
+                <textarea id="businessDesc"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="businessLocation">Location:</label>
+                <input type="text" id="businessLocation">
+            </div>
+            <div class="form-group">
+                <label for="businessWebsite">Website:</label>
+                <input type="url" id="businessWebsite">
+            </div>
+            <button type="submit" class="btn">Create Business</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    // Load sectors for dropdown
+    try {
+        const response = await fetch('/admin/sectors');
+        if (response.ok) {
+            const sectors = await response.json();
+            const select = document.getElementById('businessSector');
+            sectors.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector.id;
+                option.textContent = sector.name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading sectors:', error);
+    }
+    
+    // Handle sector creation
+    document.getElementById('sectorForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        try {
+            const response = await fetch('/admin/sectors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('sectorName').value,
+                    description: document.getElementById('sectorDesc').value
+                })
+            });
+            if (response.ok) {
+                alert('Sector created successfully!');
+                this.reset();
+                location.reload();
+            } else {
+                alert('Error creating sector');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating sector');
+        }
+    });
+    
+    // Handle business creation
+    document.getElementById('businessForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        try {
+            const response = await fetch('/admin/businesses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('businessName').value,
+                    sector_id: parseInt(document.getElementById('businessSector').value),
+                    description: document.getElementById('businessDesc').value,
+                    location: document.getElementById('businessLocation').value,
+                    website: document.getElementById('businessWebsite').value
+                })
+            });
+            if (response.ok) {
+                alert('Business created successfully!');
+                this.reset();
+                location.reload();
+            } else {
+                alert('Error creating business');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating business');
+        }
+    });
+});
+</script>
+{% endblock %}

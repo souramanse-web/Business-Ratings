@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ business.name }} - Business Ratings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rating-form { margin: 2rem 0; padding: 1.5rem; background-color: #2a2a2a; border-radius: 8px; border: 1px solid #333; }
+    .stars { font-size: 2rem; }
+    .star-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 2rem;
+        padding: 0.5rem;
+        transition: color 0.3s;
+        color: #bbb;
+    }
+    .star-btn:hover { color: #f39c12; }
+    .rating-item { border-top: 1px solid #444; padding: 1rem 0; }
+    .rating-item:first-child { border-top: none; }
+    .rating-score { font-weight: bold; color: #f39c12; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <a href="/sector/{{ business.sector_id }}" class="btn btn-secondary">{{ t('back_to_sector') }}</a>
+    
+    <div class="card" style="margin: 2rem 0;">
+        <h1>{{ business.name }}</h1>
+        <p>{{ business.description }}</p>
+        
+        {% if business.location %}
+            <p><strong>📍 {{ t('location') }}</strong> {{ business.location }}</p>
+        {% endif %}
+        
+        {% if business.website %}
+            <p><strong>🌐 {{ t('website') }}</strong> <a href="{{ business.website }}" target="_blank">{{ business.website }}</a></p>
+        {% endif %}
+        
+        <p style="font-size: 1.5rem; color: #f39c12; margin: 1rem 0;">
+            ⭐ {{ business.get_average_rating() }} / 5.0 
+            <span style="font-size: 1rem; color: #666;">({{ business.get_rating_count() }} {{ t('ratings') }})</span>
+        </p>
+    </div>
+    
+    {% if current_user.is_authenticated %}
+    <div class="rating-form card">
+        <h2>{{ t('rate_this_business') }}</h2>
+        <form id="ratingForm">
+            <div class="form-group">
+                <label>{{ t('rating') }}</label>
+                <div class="stars" id="starRating">
+                    <button type="button" class="star-btn" data-score="1">★</button>
+                    <button type="button" class="star-btn" data-score="2">★</button>
+                    <button type="button" class="star-btn" data-score="3">★</button>
+                    <button type="button" class="star-btn" data-score="4">★</button>
+                    <button type="button" class="star-btn" data-score="5">★</button>
+                </div>
+                <input type="hidden" id="scoreInput" name="score" value="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="comment">{{ t('comment') }}</label>
+                <textarea id="comment" name="comment" placeholder="{{ t('share_experience') }}"></textarea>
+            </div>
+            
+            <button type="submit" class="btn">{{ t('submit_rating') }}</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="card" style="background-color: #ecf0f1;">
+        <p>{{ t('please_login') }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="card" style="margin: 2rem 0;">
+        <h2>{{ t('ratings') }} ({{ ratings|length }})</h2>
+        {% if ratings %}
+            {% for rating in ratings %}
+                <div class="rating-item">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>{{ rating.user.username }}</strong>
+                        <span class="rating-score">{{ '★' * rating.score }}{{ '☆' * (5 - rating.score) }}</span>
+                    </div>
+                    {% if rating.comment %}
+                        <p style="margin-top: 0.5rem; color: #555;">{{ rating.comment }}</p>
+                    {% endif %}
+                    <small style="color: #999;">{{ rating.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>{{ t('no_ratings') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedScore = 0;
+    const starBtns = document.querySelectorAll('.star-btn');
+    const scoreInput = document.getElementById('scoreInput');
+    
+    starBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            selectedScore = this.dataset.score;
+            scoreInput.value = selectedScore;
+            updateStars(selectedScore);
+        });
+    });
+    
+    function updateStars(score) {
+        starBtns.forEach(btn => {
+            if (btn.dataset.score <= score) {
+                btn.style.color = '#f39c12';
+            } else {
+                btn.style.color = 'inherit';
+            }
+        });
+    }
+    
+    document.getElementById('ratingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (selectedScore === 0) {
+            alert('Please select a rating');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/rate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    business_id: {{ business.id }},
+                    score: selectedScore,
+                    comment: document.getElementById('comment').value
+                })
+            });
+            
+            if (response.ok) {
+                alert('Rating submitted successfully!');
+                location.reload();
+            } else {
+                alert('Error submitting rating');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting rating');
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

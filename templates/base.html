@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Business Rating App{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        header {
+            background-color: #0d0d0d;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-bottom: 1px solid #333;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #4facfe;
+        }
+        
+        .auth-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #4facfe;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #2a8cde;
+        }
+        
+        .btn-secondary {
+            background-color: #555;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #777;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            margin-bottom: 1rem;
+            border: 1px solid #333;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        footer {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid #333;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        
+        .alert-error {
+            background-color: #c0392b;
+            color: white;
+            border: 1px solid #922b21;
+        }
+        
+        .alert-success {
+            background-color: #27ae60;
+            color: white;
+            border: 1px solid #1e8449;
+        }
+        
+        .rating {
+            color: #f39c12;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        .language-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .lang-btn {
+            background: none;
+            border: 1px solid #666;
+            color: #e0e0e0;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .lang-btn:hover {
+            background-color: rgba(79, 172, 254, 0.2);
+            border-color: #4facfe;
+            color: #4facfe;
+        }
+        
+        .lang-btn.active {
+            background-color: #4facfe;
+            border-color: #4facfe;
+            color: #000;
+        }
+        
+        a {
+            color: #4facfe;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">⭐ Business Ratings</div>
+            <ul class="nav-links">
+                <li><a href="/">{{ t('home') }}</a></li>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                        <li><a href="/admin">{{ t('admin') }}</a></li>
+                    {% endif %}
+                    <li><a href="/logout">{{ t('logout') }} ({{ current_user.username }})</a></li>
+                {% else %}
+                    <li><a href="/login">{{ t('login') }}</a></li>
+                    <li><a href="/register">{{ t('register') }}</a></li>
+                {% endif %}
+            </ul>
+            <div class="language-switcher">
+                <a href="/set-language/en" class="lang-btn {% if current_lang == 'en' %}active{% endif %}">English</a>
+                <a href="/set-language/fr" class="lang-btn {% if current_lang == 'fr' %}active{% endif %}">Français</a>
+            </div>
+        </nav>
+    </header>
+    
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2026 Business Rating App. {{ t('copyright') }}</p>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

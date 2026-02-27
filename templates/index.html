@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t('home') }} - Business Rating App{% endblock %}
+
+{% block extra_css %}
+<style>
+    .featured-tabs {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    }
+    
+    .tab-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.7);
+    }
+    
+    .tab-btn.banks {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .tab-btn.insurance {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .tab-btn.hotels {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .tab-icon {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h1>{{ t('business_rating') }}</h1>
+    <p>{{ t('browse_rate') }}</p>
+    
+    {% if not current_user.is_authenticated %}
+    <div class="card" style="background-color: #ecf0f1; margin: 2rem 0;">
+        <h2>{{ t('welcome') }}</h2>
+        <p>{{ t('welcome_msg') }} <a href="/login" class="btn" style="display: inline-block;">{{ t('login') }}</a> {{ " " }} <a href="/register" class="btn" style="display: inline-block;">{{ t('register') }}</a></p>
+    </div>
+    {% endif %}
+    
+    <!-- Featured Tabs -->
+    <div style="margin: 2rem 0;">
+        <h2>{{ t('featured_categories') }}</h2>
+        <div class="featured-tabs">
+            {% set banks = sectors | selectattr('name', 'equalto', 'Banks') | first %}
+            {% set insurance = sectors | selectattr('name', 'equalto', 'Insurance') | first %}
+            {% set hotels = sectors | selectattr('name', 'equalto', 'Hotels') | first %}
+            
+            {% if banks %}
+                <a href="/sector/{{ banks.id }}" class="tab-btn banks">
+                    <span class="tab-icon">🏦</span>{{ t('banks') }}
+                </a>
+            {% endif %}
+            
+            {% if insurance %}
+                <a href="/sector/{{ insurance.id }}" class="tab-btn insurance">
+                    <span class="tab-icon">🛡️</span>{{ t('insurance') }}
+                </a>
+            {% endif %}
+            
+            {% if hotels %}
+                <a href="/sector/{{ hotels.id }}" class="tab-btn hotels">
+                    <span class="tab-icon">🏨</span>{{ t('hotels') }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div style="margin: 2rem 0;">
+        <h2>{{ t('all_sectors') }}</h2>
+        {% if sectors %}
+            <div class="grid">
+                {% for sector in sectors %}
+                    <div class="card">
+                        <h3>{{ sector.name }}</h3>
+                        <p>{{ sector.description }}</p>
+                        <a href="/sector/{{ sector.id }}" class="btn">{{ t('view_businesses') }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>{{ t('no_sectors') }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sector.name }} - Business Ratings{% endblock %}
+
+{% block content %}
+<div>
+    <h1>{{ sector.name }}</h1>
+    <p>{{ sector.description }}</p>
+    
+    <a href="/" class="btn btn-secondary">← {{ t('back_to_sectors') }}</a>
+    
+    <div style="margin: 2rem 0;">
+        <h2>{{ t('view_businesses') }}</h2>
+        {% if businesses %}
+            <div class="grid">
+                {% for business in businesses %}
+                    <div class="card">
+                        <h3>{{ business.name }}</h3>
+                        <p>{{ business.description }}</p>
+                        {% if business.location %}
+                            <p><strong>{{ t('location') }}</strong> {{ business.location }}</p>
+                        {% endif %}
+                        <p class="rating">⭐ {{ business.get_average_rating() }} / 5 ({{ business.get_rating_count() }} {{ t('ratings') }})</p>
+                        <a href="/business/{{ business.id }}" class="btn">{{ t('view_businesses') }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>{{ t('no_sectors') }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
