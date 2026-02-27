@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import click
 import os
 from translations import get_translation
 
@@ -399,9 +400,9 @@ def seed_db():
     businesses = [
         # Banks
         Business(name='Coris Bank', description='Full-service banking solutions', sector_id=1, location='New York', website='https://example.com'),
-        Business(name='Atlantic bank', description='Community-focused banking', sector_id=1, location='Atlanta'),
-            Business(name='Bank of Africaq', description='International banking services', sector_id=1, location='Ouagadougou'),
-        Business(name='Global Investment Bank', description='Corporate and investment banking', sector_id=1, location='London'),
+        Business(name='Bank Of Africa', description='Community-focused banking', sector_id=1, location='Atlanta'),
+        Business(name='Ecobank', description='Pan-African banking services', sector_id=1, location='Lomé'),
+        Business(name='Atlantic Bank', description='Corporate and investment banking', sector_id=1, location='London'),
         
         # Insurance
         Business(name='SafeGuard Insurance', description='Auto and home insurance', sector_id=2, location='Chicago', website='https://example.com'),
@@ -428,14 +429,9 @@ def seed_db():
 
 
 @app.cli.command()
-def make_admin():
+@click.argument('username')
+def make_admin(username):
     """Make a user an admin. Usage: flask make-admin <username>"""
-    import sys
-    if len(sys.argv) < 2:
-        print('Usage: flask make-admin <username>')
-        return
-
-    username = sys.argv[1]
     user = User.query.filter_by(username=username).first()
 
     if not user:

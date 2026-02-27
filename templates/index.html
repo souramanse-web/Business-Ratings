@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ t('home') }} - Business Rating App{% endblock %}
+{% block title %}{{ t('home') }} - ÉtalonFina Capital{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -52,7 +52,7 @@
 
 {% block content %}
 <div>
-    <h1>{{ t('business_rating') }}</h1>
+    <h1 class="floating-title">ÉtalonFina Capital</h1>
     <p>{{ t('browse_rate') }}</p>
     
     {% if not current_user.is_authenticated %}
@@ -69,7 +69,7 @@
             {% set banks = sectors | selectattr('name', 'equalto', 'Banks') | first %}
             {% set insurance = sectors | selectattr('name', 'equalto', 'Insurance') | first %}
             {% set hotels = sectors | selectattr('name', 'equalto', 'Hotels') | first %}
-            
+
             {% if banks %}
                 <a href="/sector/{{ banks.id }}" class="tab-btn banks">
                     <span class="tab-icon">🏦</span>{{ t('banks') }}
