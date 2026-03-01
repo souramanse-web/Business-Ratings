@@ -196,6 +196,17 @@ def ensure_database_ready():
             existing_user.set_password(admin_password)
             db.session.commit()
 
+    old_sector = Sector.query.filter_by(name='Food & Beverage').first()
+    if old_sector:
+        conflict_sector = Sector.query.filter_by(name='Restaurents').first()
+        if conflict_sector:
+            Business.query.filter_by(sector_id=old_sector.id).update({'sector_id': conflict_sector.id})
+            db.session.delete(old_sector)
+        else:
+            old_sector.name = 'Restaurents'
+            old_sector.description = 'Restaurants, cafes, food delivery'
+        db.session.commit()
+
 
 def seed_sample_data(reset_businesses: bool = False):
     """Seed sectors and businesses. Optionally clear ratings/businesses first."""
@@ -206,14 +217,17 @@ def seed_sample_data(reset_businesses: bool = False):
         {'name': 'Technology', 'description': 'Software, hardware, IT services'},
         {'name': 'Retail', 'description': 'Clothing, electronics, general merchandise'},
         {'name': 'Clinics', 'description': 'Hospitals, clinics, medical services'},
-        {'name': 'Food & Beverage', 'description': 'Restaurants, cafes, food delivery'},
+        {'name': 'Restaurents', 'description': 'Restaurants, cafes, food delivery'},
     ]
 
     for sector_data in sectors_data:
         existing_sector = Sector.query.filter_by(name=sector_data['name']).first()
+        if not existing_sector and sector_data['name'] == 'Restaurents':
+            existing_sector = Sector.query.filter_by(name='Food & Beverage').first()
         if not existing_sector:
             db.session.add(Sector(name=sector_data['name'], description=sector_data['description']))
         else:
+            existing_sector.name = sector_data['name']
             existing_sector.description = sector_data['description']
 
     db.session.commit()
