@@ -154,9 +154,30 @@ class Rating(db.Model):
         }
 
 
+def ensure_database_ready():
+    """Create database tables and optionally bootstrap an admin user from env vars."""
+    db.create_all()
+
+    admin_username = os.environ.get('ADMIN_BOOTSTRAP_USERNAME')
+    admin_email = os.environ.get('ADMIN_BOOTSTRAP_EMAIL')
+    admin_password = os.environ.get('ADMIN_BOOTSTRAP_PASSWORD')
+
+    if admin_username and admin_email and admin_password:
+        existing_user = User.query.filter_by(username=admin_username).first()
+        if not existing_user:
+            admin_user = User(username=admin_username, email=admin_email, is_admin=True)
+            admin_user.set_password(admin_password)
+            db.session.add(admin_user)
+            db.session.commit()
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+with app.app_context():
+    ensure_database_ready()
 
 
 # =====================
