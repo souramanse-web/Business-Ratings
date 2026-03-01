@@ -356,7 +356,8 @@ def logout():
 @app.route('/')
 def index():
     sectors = Sector.query.all()
-    return render_template('index.html', sectors=sectors)
+    businesses = Business.query.order_by(Business.name.asc()).all()
+    return render_template('index.html', sectors=sectors, businesses=businesses)
 
 
 @app.route('/sector/<int:sector_id>')

@@ -118,5 +118,27 @@
             <p>{{ t('no_sectors') }}</p>
         {% endif %}
     </div>
+
+    <div style="margin: 2rem 0;">
+        <h2>All Businesses</h2>
+        {% if businesses %}
+            <div class="grid">
+                {% for business in businesses %}
+                    <div class="card">
+                        <h3>{{ business.name }}</h3>
+                        <p>{{ business.description }}</p>
+                        {% if business.location %}
+                            <p><strong>{{ t('location') }}</strong> {{ business.location }}</p>
+                        {% endif %}
+                        <p><strong>Sector:</strong> {{ business.sector.name if business.sector else 'N/A' }}</p>
+                        <p class="rating">⭐ {{ business.get_average_rating() }} / 5 ({{ business.get_rating_count() }} {{ t('ratings') }})</p>
+                        <a href="/business/{{ business.id }}" class="btn">{{ t('view_businesses') }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No businesses available.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
