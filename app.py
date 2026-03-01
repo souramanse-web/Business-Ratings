@@ -190,7 +190,7 @@ def ensure_database_ready():
             db.session.commit()
 
 
-def seed_sample_data(reset_businesses: bool = True):
+def seed_sample_data(reset_businesses: bool = False):
     """Seed sectors and businesses. Optionally clear ratings/businesses first."""
     sectors_data = [
         {'name': 'Banks', 'description': 'Banks and Banking Services - Personal and Business Banking'},
@@ -495,9 +495,13 @@ def admin_seed_data():
     if not current_user.is_admin:
         return jsonify({'error': 'Unauthorized'}), 403
 
-    summary = seed_sample_data(reset_businesses=True)
+    data = request.get_json(silent=True) or {}
+    force_reset = bool(data.get('force_reset', False))
+
+    summary = seed_sample_data(reset_businesses=force_reset)
     return jsonify({
         'message': 'Sample sectors and companies loaded successfully',
+        'mode': 'reset' if force_reset else 'preserve',
         'summary': summary
     }), 200
 
@@ -531,7 +535,7 @@ def init_db():
 @app.cli.command()
 def seed_db():
     """Seed the database with sample data."""
-    summary = seed_sample_data(reset_businesses=True)
+    summary = seed_sample_data(reset_businesses=False)
     print(
         f"Database seeded with sample data. "
         f"Sectors: {summary['sectors']}, Businesses: {summary['businesses']}"

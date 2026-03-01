@@ -69,9 +69,9 @@
             <li>📦 <strong>GET /admin/businesses</strong> - List all businesses</li>
             <li>➕ <strong>POST /admin/businesses</strong> - Create new business</li>
             <li>🗑️ <strong>DELETE /admin/business/{id}</strong> - Delete a business</li>
-            <li>🌱 <strong>POST /admin/seed</strong> - Reload sample sectors and companies</li>
+            <li>🌱 <strong>POST /admin/seed</strong> - Add missing sample sectors and companies (preserves existing data)</li>
         </ul>
-        <button id="seedDataBtn" class="btn" type="button" style="margin-top: 0.75rem;">Reload Sample Companies</button>
+        <button id="seedDataBtn" class="btn" type="button" style="margin-top: 0.75rem;">Add Missing Sample Companies</button>
     </div>
     
     <div class="card">
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const seedBtn = document.getElementById('seedDataBtn');
     if (seedBtn) {
         seedBtn.addEventListener('click', async function() {
-            const confirmed = confirm('This will reload sample companies and clear existing ratings. Continue?');
+            const confirmed = confirm('This will add missing sample companies and keep your existing companies/ratings. Continue?');
             if (!confirmed) return;
 
             seedBtn.disabled = true;
