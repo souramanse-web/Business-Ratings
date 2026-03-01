@@ -101,11 +101,9 @@ def main():
 
     missing_sector_names = sorted({b["sector"] for b in missing if b.get("sector") and b["sector"] not in sector_map})
     if missing_sector_names:
-        print("Cannot sync because these sectors are missing on remote:")
+        print("These sectors are missing on remote; businesses in them will be skipped:")
         for name in missing_sector_names:
             print(f"- {name}")
-        print("Create those sectors first in /admin, then rerun.")
-        return 1
 
     if args.dry_run:
         print("Dry run complete. Businesses that would be created:")
@@ -114,13 +112,20 @@ def main():
         return 0
 
     created = 0
+    skipped_missing_sector = 0
     for business in missing:
+        sector_name = business.get("sector")
+        if sector_name not in sector_map:
+            skipped_missing_sector += 1
+            print(f"Skipped {business['name']} (missing sector: {sector_name or 'None'})")
+            continue
+
         payload = {
             "name": business["name"],
             "description": business.get("description", ""),
             "location": business.get("location", ""),
             "website": business.get("website", ""),
-            "sector_id": sector_map.get(business.get("sector")),
+            "sector_id": sector_map.get(sector_name),
         }
 
         try:
@@ -136,7 +141,7 @@ def main():
         except Exception as exc:
             print(f"Failed {business['name']}: {exc}")
 
-    print(f"Sync complete. Created {created} business(es).")
+    print(f"Sync complete. Created {created} business(es), skipped {skipped_missing_sector} due to missing sector.")
     return 0
 
 
