@@ -88,6 +88,27 @@
             <button type="submit" class="btn">Create Sector</button>
         </form>
     </div>
+
+    <div class="card">
+        <h2>Update Sector</h2>
+        <form id="updateSectorForm">
+            <div class="form-group">
+                <label for="updateSectorId">Select Sector:</label>
+                <select id="updateSectorId" required>
+                    <option value="">Select a sector</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="updateSectorName">Sector Name:</label>
+                <input type="text" id="updateSectorName" required>
+            </div>
+            <div class="form-group">
+                <label for="updateSectorDesc">Description:</label>
+                <textarea id="updateSectorDesc"></textarea>
+            </div>
+            <button type="submit" class="btn">Update Sector</button>
+        </form>
+    </div>
     
     <div class="card">
         <h2>Create New Business</h2>
@@ -121,22 +142,50 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
+    let sectorCache = [];
+
+    async function loadSectorsForAdmin() {
+        const response = await fetch('/admin/sectors');
+        if (!response.ok) {
+            throw new Error('Failed to load sectors');
+        }
+
+        sectorCache = await response.json();
+
+        const createSelect = document.getElementById('businessSector');
+        const updateSelect = document.getElementById('updateSectorId');
+
+        createSelect.innerHTML = '<option value="">Select a sector</option>';
+        updateSelect.innerHTML = '<option value="">Select a sector</option>';
+
+        sectorCache.forEach(sector => {
+            const createOption = document.createElement('option');
+            createOption.value = sector.id;
+            createOption.textContent = sector.name;
+            createSelect.appendChild(createOption);
+
+            const updateOption = document.createElement('option');
+            updateOption.value = sector.id;
+            updateOption.textContent = sector.name;
+            updateSelect.appendChild(updateOption);
+        });
+    }
+
     // Load sectors for dropdown
     try {
-        const response = await fetch('/admin/sectors');
-        if (response.ok) {
-            const sectors = await response.json();
-            const select = document.getElementById('businessSector');
-            sectors.forEach(sector => {
-                const option = document.createElement('option');
-                option.value = sector.id;
-                option.textContent = sector.name;
-                select.appendChild(option);
-            });
-        }
+        await loadSectorsForAdmin();
     } catch (error) {
         console.error('Error loading sectors:', error);
     }
+
+    // Prefill update form when a sector is selected
+    document.getElementById('updateSectorId').addEventListener('change', function() {
+        const sectorId = parseInt(this.value, 10);
+        const selected = sectorCache.find(s => s.id === sectorId);
+
+        document.getElementById('updateSectorName').value = selected ? selected.name : '';
+        document.getElementById('updateSectorDesc').value = selected ? (selected.description || '') : '';
+    });
     
     // Handle sector creation
     document.getElementById('sectorForm').addEventListener('submit', async function(e) {
@@ -192,6 +241,42 @@ document.addEventListener('DOMContentLoaded', async function() {
         } catch (error) {
             console.error('Error:', error);
             alert('Error creating business');
+        }
+    });
+
+    // Handle sector update
+    document.getElementById('updateSectorForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const sectorId = parseInt(document.getElementById('updateSectorId').value, 10);
+        if (!sectorId) {
+            alert('Please select a sector to update');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/sectors/${sectorId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('updateSectorName').value,
+                    description: document.getElementById('updateSectorDesc').value,
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Sector updated successfully!');
+                await loadSectorsForAdmin();
+                document.getElementById('updateSectorId').value = data.id;
+            } else {
+                alert(data.error || 'Error updating sector');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error updating sector');
         }
     });
 

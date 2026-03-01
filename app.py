@@ -454,6 +454,32 @@ def admin_sectors():
     return jsonify([s.to_dict() for s in sectors])
 
 
+@app.route('/admin/sectors/<int:sector_id>', methods=['PUT'])
+@login_required
+def admin_update_sector(sector_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or '').strip()
+    description = (data.get('description') or '').strip()
+
+    if not name:
+        return jsonify({'error': 'Sector name is required'}), 400
+
+    sector = Sector.query.get_or_404(sector_id)
+
+    duplicate = Sector.query.filter(Sector.name == name, Sector.id != sector_id).first()
+    if duplicate:
+        return jsonify({'error': 'Sector name already exists'}), 400
+
+    sector.name = name
+    sector.description = description
+    db.session.commit()
+
+    return jsonify(sector.to_dict()), 200
+
+
 @app.route('/admin/businesses', methods=['GET', 'POST'])
 @login_required
 def admin_businesses():
