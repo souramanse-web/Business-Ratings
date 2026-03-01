@@ -6,7 +6,7 @@ A Flask app to rate businesses by sector with user authentication and admin pane
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -65,9 +65,7 @@ def set_language():
 
     if is_production and not db_ready_checked:
         try:
-            inspector = inspect(db.engine)
-            if not inspector.has_table('user'):
-                ensure_database_ready()
+            ensure_database_ready()
             db_ready_checked = True
         except SQLAlchemyError:
             db.session.rollback()
@@ -105,6 +103,7 @@ class Sector(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
+    location = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     businesses = db.relationship('Business', backref='sector', lazy=True, cascade='all, delete-orphan')
 
@@ -112,7 +111,8 @@ class Sector(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description
+            'description': self.description,
+            'location': self.location,
         }
 
 
@@ -171,6 +171,13 @@ class Rating(db.Model):
 def ensure_database_ready():
     """Create database tables and optionally bootstrap an admin user from env vars."""
     db.create_all()
+
+    inspector = inspect(db.engine)
+    if inspector.has_table('sector'):
+        sector_columns = [col['name'] for col in inspector.get_columns('sector')]
+        if 'location' not in sector_columns:
+            db.session.execute(text('ALTER TABLE sector ADD COLUMN location VARCHAR(255)'))
+            db.session.commit()
 
     admin_username = os.environ.get('ADMIN_BOOTSTRAP_USERNAME')
     admin_email = os.environ.get('ADMIN_BOOTSTRAP_EMAIL')
@@ -444,8 +451,12 @@ def admin_sectors():
         return jsonify({'error': 'Unauthorized'}), 403
 
     if request.method == 'POST':
-        data = request.get_json()
-        sector = Sector(name=data.get('name'), description=data.get('description', ''))
+        data = request.get_json(silent=True) or {}
+        sector = Sector(
+            name=(data.get('name') or '').strip(),
+            description=(data.get('description') or '').strip(),
+            location=(data.get('location') or '').strip(),
+        )
         db.session.add(sector)
         db.session.commit()
         return jsonify(sector.to_dict()), 201
@@ -463,6 +474,7 @@ def admin_update_sector(sector_id):
     data = request.get_json(silent=True) or {}
     name = (data.get('name') or '').strip()
     description = (data.get('description') or '').strip()
+    location = (data.get('location') or '').strip()
 
     if not name:
         return jsonify({'error': 'Sector name is required'}), 400
@@ -475,6 +487,7 @@ def admin_update_sector(sector_id):
 
     sector.name = name
     sector.description = description
+    sector.location = location
     db.session.commit()
 
     return jsonify(sector.to_dict()), 200

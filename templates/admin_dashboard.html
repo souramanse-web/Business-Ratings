@@ -82,6 +82,10 @@
                 <input type="text" id="sectorName" required>
             </div>
             <div class="form-group">
+                <label for="sectorLocation">Sector Location:</label>
+                <input type="text" id="sectorLocation" placeholder="Optional location">
+            </div>
+            <div class="form-group">
                 <label for="sectorDesc">Description:</label>
                 <textarea id="sectorDesc"></textarea>
             </div>
@@ -101,6 +105,10 @@
             <div class="form-group">
                 <label for="updateSectorName">Sector Name:</label>
                 <input type="text" id="updateSectorName" required>
+            </div>
+            <div class="form-group">
+                <label for="updateSectorLocation">Sector Location:</label>
+                <input type="text" id="updateSectorLocation" placeholder="Optional location">
             </div>
             <div class="form-group">
                 <label for="updateSectorDesc">Description:</label>
@@ -246,6 +254,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const selected = sectorCache.find(s => s.id === sectorId);
 
         document.getElementById('updateSectorName').value = selected ? selected.name : '';
+        document.getElementById('updateSectorLocation').value = selected ? (selected.location || '') : '';
         document.getElementById('updateSectorDesc').value = selected ? (selected.description || '') : '';
     });
 
@@ -277,6 +286,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 },
                 body: JSON.stringify({
                     name: document.getElementById('sectorName').value,
+                    location: document.getElementById('sectorLocation').value,
                     description: document.getElementById('sectorDesc').value
                 })
             });
@@ -379,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 },
                 body: JSON.stringify({
                     name: document.getElementById('updateSectorName').value,
+                    location: document.getElementById('updateSectorLocation').value,
                     description: document.getElementById('updateSectorDesc').value,
                 })
             });
