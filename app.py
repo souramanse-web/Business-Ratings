@@ -190,6 +190,80 @@ def ensure_database_ready():
             db.session.commit()
 
 
+def seed_sample_data(reset_businesses: bool = True):
+    """Seed sectors and businesses. Optionally clear ratings/businesses first."""
+    sectors_data = [
+        {'name': 'Banks', 'description': 'Banks and Banking Services - Personal and Business Banking'},
+        {'name': 'Insurance', 'description': 'Insurance Companies - Auto, Health, Home, and Life Insurance'},
+        {'name': 'Hotels', 'description': 'Hotels and Hospitality - Accommodations and Travel Services'},
+        {'name': 'Technology', 'description': 'Software, hardware, IT services'},
+        {'name': 'Retail', 'description': 'Clothing, electronics, general merchandise'},
+        {'name': 'Clinics', 'description': 'Hospitals, clinics, medical services'},
+        {'name': 'Food & Beverage', 'description': 'Restaurants, cafes, food delivery'},
+    ]
+
+    for sector_data in sectors_data:
+        existing_sector = Sector.query.filter_by(name=sector_data['name']).first()
+        if not existing_sector:
+            db.session.add(Sector(name=sector_data['name'], description=sector_data['description']))
+        else:
+            existing_sector.description = sector_data['description']
+
+    db.session.commit()
+
+    sectors_by_name = {sector.name: sector for sector in Sector.query.all()}
+
+    if reset_businesses:
+        Rating.query.delete()
+        Business.query.delete()
+        db.session.commit()
+
+    businesses_data = [
+        {'name': 'Coris Bank', 'description': 'Full-service banking solutions', 'sector': 'Banks', 'location': 'New York', 'website': 'https://example.com'},
+        {'name': 'Bank Of Africa', 'description': 'Community-focused banking', 'sector': 'Banks', 'location': 'Atlanta', 'website': ''},
+        {'name': 'Ecobank', 'description': 'Pan-African banking services', 'sector': 'Banks', 'location': 'Lomé', 'website': ''},
+        {'name': 'Atlantic Bank', 'description': 'Corporate and investment banking', 'sector': 'Banks', 'location': 'London', 'website': ''},
+
+        {'name': 'SafeGuard Insurance', 'description': 'Auto and home insurance', 'sector': 'Insurance', 'location': 'Chicago', 'website': 'https://example.com'},
+        {'name': 'HealthShield Inc', 'description': 'Health insurance provider', 'sector': 'Insurance', 'location': 'Boston', 'website': ''},
+        {'name': 'LifeSecure Insurance', 'description': 'Life and disability insurance', 'sector': 'Insurance', 'location': 'Denver', 'website': ''},
+
+        {'name': 'Grand Plaza Hotel', 'description': 'Luxury 5-star hotel with premium amenities', 'sector': 'Hotels', 'location': 'New York', 'website': 'https://example.com'},
+        {'name': 'Comfort Inn Express', 'description': 'Budget-friendly accommodations', 'sector': 'Hotels', 'location': 'Austin', 'website': ''},
+        {'name': 'Seaside Resort', 'description': 'Beachfront resort with spa facilities', 'sector': 'Hotels', 'location': 'Miami', 'website': ''},
+
+        {'name': 'TechCorp', 'description': 'Leading software solutions', 'sector': 'Technology', 'location': 'San Francisco', 'website': ''},
+        {'name': 'StyleHub', 'description': 'Fashion and accessories', 'sector': 'Retail', 'location': 'New York', 'website': ''},
+        {'name': 'HealthPlus', 'description': 'Modern medical center', 'sector': 'Clinics', 'location': 'Boston', 'website': ''},
+    ]
+
+    created_businesses = 0
+    for business_data in businesses_data:
+        sector = sectors_by_name.get(business_data['sector'])
+        if not sector:
+            continue
+
+        existing_business = Business.query.filter_by(name=business_data['name']).first()
+        if not existing_business:
+            business = Business(
+                name=business_data['name'],
+                description=business_data['description'],
+                sector_id=sector.id,
+                website=business_data['website'],
+                location=business_data['location']
+            )
+            db.session.add(business)
+            created_businesses += 1
+
+    db.session.commit()
+
+    return {
+        'sectors': Sector.query.count(),
+        'businesses': Business.query.count(),
+        'created_businesses': created_businesses,
+    }
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -415,6 +489,19 @@ def admin_delete_business(business_id):
     return jsonify({'message': 'Business deleted'}), 200
 
 
+@app.route('/admin/seed', methods=['POST'])
+@login_required
+def admin_seed_data():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    summary = seed_sample_data(reset_businesses=True)
+    return jsonify({
+        'message': 'Sample sectors and companies loaded successfully',
+        'summary': summary
+    }), 200
+
+
 # =====================
 # Error Handlers
 # =====================
@@ -444,57 +531,11 @@ def init_db():
 @app.cli.command()
 def seed_db():
     """Seed the database with sample data."""
-    # Create sample sectors
-    sectors = [
-        Sector(name='Banks', description='Banks and Banking Services - Personal and Business Banking'),
-        Sector(name='Insurance', description='Insurance Companies - Auto, Health, Home, and Life Insurance'),
-        Sector(name='Hotels', description='Hotels and Hospitality - Accommodations and Travel Services'),
-        Sector(name='Technology', description='Software, hardware, IT services'),
-        Sector(name='Retail', description='Clothing, electronics, general merchandise'),
-        Sector(name='Clinics', description='Hospitals, clinics, medical services'),
-        Sector(name='Food & Beverage', description='Restaurants, cafes, food delivery'),
-    ]
-
-    for sector in sectors:
-        if not Sector.query.filter_by(name=sector.name).first():
-            db.session.add(sector)
-
-    db.session.commit()
-
-    # Clear all businesses before seeding
-    Business.query.delete()
-    db.session.commit()
-
-    # Create sample businesses
-    businesses = [
-        # Banks
-        Business(name='Coris Bank', description='Full-service banking solutions', sector_id=1, location='New York', website='https://example.com'),
-        Business(name='Bank Of Africa', description='Community-focused banking', sector_id=1, location='Atlanta'),
-        Business(name='Ecobank', description='Pan-African banking services', sector_id=1, location='Lomé'),
-        Business(name='Atlantic Bank', description='Corporate and investment banking', sector_id=1, location='London'),
-        
-        # Insurance
-        Business(name='SafeGuard Insurance', description='Auto and home insurance', sector_id=2, location='Chicago', website='https://example.com'),
-        Business(name='HealthShield Inc', description='Health insurance provider', sector_id=2, location='Boston'),
-        Business(name='LifeSecure Insurance', description='Life and disability insurance', sector_id=2, location='Denver'),
-        
-        # Hotels
-        Business(name='Grand Plaza Hotel', description='Luxury 5-star hotel with premium amenities', sector_id=3, location='New York', website='https://example.com'),
-        Business(name='Comfort Inn Express', description='Budget-friendly accommodations', sector_id=3, location='Austin'),
-        Business(name='Seaside Resort', description='Beachfront resort with spa facilities', sector_id=3, location='Miami'),
-        
-        # Other sectors
-        Business(name='TechCorp', description='Leading software solutions', sector_id=4, location='San Francisco'),
-        Business(name='StyleHub', description='Fashion and accessories', sector_id=5, location='New York'),
-        Business(name='HealthPlus', description='Modern medical center', sector_id=6, location='Boston'),
-    ]
-
-    for business in businesses:
-        if not Business.query.filter_by(name=business.name).first():
-            db.session.add(business)
-
-    db.session.commit()
-    print('Database seeded with sample data.')
+    summary = seed_sample_data(reset_businesses=True)
+    print(
+        f"Database seeded with sample data. "
+        f"Sectors: {summary['sectors']}, Businesses: {summary['businesses']}"
+    )
 
 
 @app.cli.command()

@@ -69,7 +69,9 @@
             <li>📦 <strong>GET /admin/businesses</strong> - List all businesses</li>
             <li>➕ <strong>POST /admin/businesses</strong> - Create new business</li>
             <li>🗑️ <strong>DELETE /admin/business/{id}</strong> - Delete a business</li>
+            <li>🌱 <strong>POST /admin/seed</strong> - Reload sample sectors and companies</li>
         </ul>
+        <button id="seedDataBtn" class="btn" type="button" style="margin-top: 0.75rem;">Reload Sample Companies</button>
     </div>
     
     <div class="card">
@@ -192,6 +194,36 @@ document.addEventListener('DOMContentLoaded', async function() {
             alert('Error creating business');
         }
     });
+
+    // Handle sample data reseed
+    const seedBtn = document.getElementById('seedDataBtn');
+    if (seedBtn) {
+        seedBtn.addEventListener('click', async function() {
+            const confirmed = confirm('This will reload sample companies and clear existing ratings. Continue?');
+            if (!confirmed) return;
+
+            seedBtn.disabled = true;
+            const originalText = seedBtn.textContent;
+            seedBtn.textContent = 'Reloading...';
+
+            try {
+                const response = await fetch('/admin/seed', { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(`${data.message}\nSectors: ${data.summary.sectors}\nBusinesses: ${data.summary.businesses}`);
+                    location.reload();
+                } else {
+                    alert(data.error || 'Failed to reload sample data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to reload sample data');
+            } finally {
+                seedBtn.disabled = false;
+                seedBtn.textContent = originalText;
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
