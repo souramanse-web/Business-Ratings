@@ -515,6 +515,47 @@ def admin_delete_business(business_id):
     return jsonify({'message': 'Business deleted'}), 200
 
 
+@app.route('/admin/business/<int:business_id>', methods=['PUT'])
+@login_required
+def admin_update_business(business_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or '').strip()
+    description = (data.get('description') or '').strip()
+    website = (data.get('website') or '').strip()
+    location = (data.get('location') or '').strip()
+    sector_id = data.get('sector_id')
+
+    if not name:
+        return jsonify({'error': 'Business name is required'}), 400
+
+    try:
+        sector_id = int(sector_id)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Valid sector_id is required'}), 400
+
+    sector = Sector.query.get(sector_id)
+    if not sector:
+        return jsonify({'error': 'Sector not found'}), 404
+
+    business = Business.query.get_or_404(business_id)
+
+    duplicate = Business.query.filter(Business.name == name, Business.id != business_id).first()
+    if duplicate:
+        return jsonify({'error': 'Business name already exists'}), 400
+
+    business.name = name
+    business.description = description
+    business.website = website
+    business.location = location
+    business.sector_id = sector_id
+    db.session.commit()
+
+    return jsonify(business.to_dict()), 200
+
+
 @app.route('/admin/seed', methods=['POST'])
 @login_required
 def admin_seed_data():

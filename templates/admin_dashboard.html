@@ -138,11 +138,47 @@
             <button type="submit" class="btn">Create Business</button>
         </form>
     </div>
+
+    <div class="card">
+        <h2>Update Business (Location Included)</h2>
+        <form id="updateBusinessForm">
+            <div class="form-group">
+                <label for="updateBusinessId">Select Business:</label>
+                <select id="updateBusinessId" required>
+                    <option value="">Select a business</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="updateBusinessName">Business Name:</label>
+                <input type="text" id="updateBusinessName" required>
+            </div>
+            <div class="form-group">
+                <label for="updateBusinessSector">Sector:</label>
+                <select id="updateBusinessSector" required>
+                    <option value="">Select a sector</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="updateBusinessDesc">Description:</label>
+                <textarea id="updateBusinessDesc"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="updateBusinessLocation">Location:</label>
+                <input type="text" id="updateBusinessLocation">
+            </div>
+            <div class="form-group">
+                <label for="updateBusinessWebsite">Website:</label>
+                <input type="url" id="updateBusinessWebsite">
+            </div>
+            <button type="submit" class="btn">Update Business</button>
+        </form>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
     let sectorCache = [];
+    let businessCache = [];
 
     async function loadSectorsForAdmin() {
         const response = await fetch('/admin/sectors');
@@ -154,9 +190,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const createSelect = document.getElementById('businessSector');
         const updateSelect = document.getElementById('updateSectorId');
+        const updateBusinessSectorSelect = document.getElementById('updateBusinessSector');
 
         createSelect.innerHTML = '<option value="">Select a sector</option>';
         updateSelect.innerHTML = '<option value="">Select a sector</option>';
+        updateBusinessSectorSelect.innerHTML = '<option value="">Select a sector</option>';
 
         sectorCache.forEach(sector => {
             const createOption = document.createElement('option');
@@ -168,12 +206,36 @@ document.addEventListener('DOMContentLoaded', async function() {
             updateOption.value = sector.id;
             updateOption.textContent = sector.name;
             updateSelect.appendChild(updateOption);
+
+            const updateBusinessSectorOption = document.createElement('option');
+            updateBusinessSectorOption.value = sector.id;
+            updateBusinessSectorOption.textContent = sector.name;
+            updateBusinessSectorSelect.appendChild(updateBusinessSectorOption);
+        });
+    }
+
+    async function loadBusinessesForAdmin() {
+        const response = await fetch('/admin/businesses');
+        if (!response.ok) {
+            throw new Error('Failed to load businesses');
+        }
+
+        businessCache = await response.json();
+        const updateBusinessSelect = document.getElementById('updateBusinessId');
+        updateBusinessSelect.innerHTML = '<option value="">Select a business</option>';
+
+        businessCache.forEach(business => {
+            const option = document.createElement('option');
+            option.value = business.id;
+            option.textContent = business.name;
+            updateBusinessSelect.appendChild(option);
         });
     }
 
     // Load sectors for dropdown
     try {
         await loadSectorsForAdmin();
+        await loadBusinessesForAdmin();
     } catch (error) {
         console.error('Error loading sectors:', error);
     }
@@ -185,6 +247,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         document.getElementById('updateSectorName').value = selected ? selected.name : '';
         document.getElementById('updateSectorDesc').value = selected ? (selected.description || '') : '';
+    });
+
+    document.getElementById('updateBusinessId').addEventListener('change', function() {
+        const businessId = parseInt(this.value, 10);
+        const selected = businessCache.find(b => b.id === businessId);
+
+        document.getElementById('updateBusinessName').value = selected ? selected.name : '';
+        document.getElementById('updateBusinessDesc').value = selected ? (selected.description || '') : '';
+        document.getElementById('updateBusinessLocation').value = selected ? (selected.location || '') : '';
+        document.getElementById('updateBusinessWebsite').value = selected ? (selected.website || '') : '';
+
+        if (selected && selected.sector) {
+            const matchingSector = sectorCache.find(s => s.name === selected.sector);
+            document.getElementById('updateBusinessSector').value = matchingSector ? matchingSector.id : '';
+        } else {
+            document.getElementById('updateBusinessSector').value = '';
+        }
     });
     
     // Handle sector creation
@@ -234,13 +313,51 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (response.ok) {
                 alert('Business created successfully!');
                 this.reset();
-                location.reload();
+                await loadBusinessesForAdmin();
             } else {
                 alert('Error creating business');
             }
         } catch (error) {
             console.error('Error:', error);
             alert('Error creating business');
+        }
+    });
+
+    document.getElementById('updateBusinessForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const businessId = parseInt(document.getElementById('updateBusinessId').value, 10);
+        if (!businessId) {
+            alert('Please select a business to update');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/business/${businessId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('updateBusinessName').value,
+                    sector_id: parseInt(document.getElementById('updateBusinessSector').value, 10),
+                    description: document.getElementById('updateBusinessDesc').value,
+                    location: document.getElementById('updateBusinessLocation').value,
+                    website: document.getElementById('updateBusinessWebsite').value,
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Business updated successfully!');
+                await loadBusinessesForAdmin();
+                document.getElementById('updateBusinessId').value = data.id;
+            } else {
+                alert(data.error || 'Error updating business');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error updating business');
         }
     });
 
