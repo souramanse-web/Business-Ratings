@@ -183,6 +183,11 @@ def ensure_database_ready():
             admin_user.set_password(admin_password)
             db.session.add(admin_user)
             db.session.commit()
+        else:
+            existing_user.email = admin_email
+            existing_user.is_admin = True
+            existing_user.set_password(admin_password)
+            db.session.commit()
 
 
 @login_manager.user_loader
