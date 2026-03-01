@@ -241,10 +241,16 @@ def get_businesses():
 @app.route('/api/rate', methods=['POST'])
 @login_required
 def rate_business():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     business_id = data.get('business_id')
     score = data.get('score')
     comment = data.get('comment', '')
+
+    try:
+        business_id = int(business_id)
+        score = int(score)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'business_id and score must be integers'}), 400
 
     if not 1 <= score <= 5:
         return jsonify({'error': 'Score must be between 1 and 5'}), 400
