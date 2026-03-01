@@ -207,6 +207,11 @@ def ensure_database_ready():
             old_sector.description = 'Restaurants, cafes, food delivery'
         db.session.commit()
 
+    minimum_sample_sectors = 7
+    minimum_sample_businesses = 13
+    if Sector.query.count() < minimum_sample_sectors or Business.query.count() < minimum_sample_businesses:
+        seed_sample_data(reset_businesses=False)
+
 
 def seed_sample_data(reset_businesses: bool = False):
     """Seed sectors and businesses. Optionally clear ratings/businesses first."""
