@@ -248,47 +248,30 @@
             color: #000;
         }
 
-        .africa-map {
+        .top-right-image {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            width: 72px;
-            height: 86px;
+            top: 0.9rem;
+            right: 0.9rem;
+            width: 96px;
+            height: 96px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
             z-index: 1000;
-            animation: floatMap 3.5s ease-in-out infinite;
             pointer-events: none;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
-            background: #f39c12;
-            clip-path: polygon(
-                34% 2%, 43% 6%, 48% 13%, 56% 19%, 66% 28%, 70% 36%,
-                68% 45%, 63% 53%, 64% 61%, 69% 69%, 70% 77%, 63% 84%,
-                57% 89%, 55% 98%, 46% 96%, 42% 90%, 36% 86%, 28% 82%,
-                25% 75%, 19% 68%, 15% 58%, 11% 48%, 13% 39%, 16% 30%,
-                21% 22%, 26% 14%, 31% 8%
-            );
+            animation: floatImage 3.8s ease-in-out infinite;
         }
 
-        .africa-map::before {
-            content: '';
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            right: 14px;
-            bottom: 8px;
-            border-radius: 50%;
-            background: #f39c12;
-            transform: rotate(16deg);
-        }
-
-
-        @keyframes floatMap {
+        @keyframes floatImage {
             0%, 100% {
                 transform: translateY(0);
             }
             50% {
-                transform: translateY(-8px);
+                transform: translateY(-10px);
             }
         }
+
+
         
         a {
             color: #4facfe;
@@ -308,12 +291,6 @@
                 font-size: 1.25rem;
             }
 
-            .africa-map {
-                width: 52px;
-                height: 64px;
-                top: 0.6rem;
-                right: 0.6rem;
-            }
         }
 
         @media (max-width: 640px) {
@@ -357,15 +334,16 @@
                 text-align: center;
             }
 
-            .africa-map {
+            .top-right-image {
                 display: none;
             }
+
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="africa-map" aria-label="Gold Africa map" title="Gold Africa map"></div>
+    <img class="top-right-image" src="/static/img/Gold.jpg" alt="Gold image">
     <header>
         <nav>
             <div class="logo">
