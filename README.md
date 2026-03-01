@@ -64,6 +64,22 @@ This project is configured for Render with managed PostgreSQL via [render.yaml](
 - In cloud, `DATABASE_URL` is used automatically.
 - Production server command is `gunicorn app:app`.
 
+### Optional: One-Click Deploy Hook
+
+You can trigger a new deploy without opening the dashboard by creating a Render Deploy Hook.
+
+1. In Render: **business-rating-app** → **Settings** → **Deploy Hook** → **Create Deploy Hook**.
+2. Copy the generated URL (looks like this):
+  ```
+  https://api.render.com/deploy/srv-xxxxxxxxxxxx?key=xxxxxxxxxxxxxxxx
+  ```
+3. Trigger deploy anytime:
+  ```bash
+  curl -X POST "https://api.render.com/deploy/srv-xxxxxxxxxxxx?key=xxxxxxxxxxxxxxxx"
+  ```
+
+Keep this URL private because anyone with it can trigger a deploy.
+
 ## Setup
 
 ### 1. Create a virtual environment:
