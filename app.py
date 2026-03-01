@@ -15,7 +15,10 @@ from translations import get_translation
 # Initialize Flask app
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///business_ratings.db'
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///business_ratings.db')
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
@@ -213,6 +216,11 @@ def business_detail(business_id):
     business = Business.query.get_or_404(business_id)
     ratings = Rating.query.filter_by(business_id=business_id).order_by(Rating.created_at.desc()).all()
     return render_template('business_detail.html', business=business, ratings=ratings)
+
+
+@app.route('/healthz', methods=['GET'])
+def healthz():
+    return jsonify({'status': 'ok'}), 200
 
 
 # =====================

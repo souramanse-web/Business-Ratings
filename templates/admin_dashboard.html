@@ -2,11 +2,46 @@
 
 {% block title %}Admin Dashboard - Business Rating App{% endblock %}
 
+{% block extra_css %}
+<style>
+    .admin-stats h3 {
+        font-size: 2.5rem;
+    }
+
+    .admin-api-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .admin-api-list li {
+        overflow-wrap: anywhere;
+        margin-bottom: 0.45rem;
+    }
+
+    @media (max-width: 640px) {
+        .admin-stats {
+            grid-template-columns: 1fr;
+            gap: 0.9rem;
+            margin: 1.25rem 0;
+        }
+
+        .admin-stats h3 {
+            font-size: 2rem;
+        }
+
+        .admin-api-list li {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div>
     <h1>Admin Dashboard</h1>
     
-    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin: 2rem 0;">
+    <div class="grid admin-stats" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin: 2rem 0;">
         <div class="card" style="text-align: center;">
             <h3 style="font-size: 2.5rem; color: #3498db;">{{ sectors_count }}</h3>
             <p>Sectors</p>
@@ -28,7 +63,7 @@
     <div class="card" style="margin: 2rem 0;">
         <h2>Admin Functions</h2>
         <p>Use the API endpoints below to manage sectors and businesses:</p>
-        <ul style="list-style: none; padding: 0;">
+        <ul class="admin-api-list">
             <li>📊 <strong>GET /admin/sectors</strong> - List all sectors</li>
             <li>➕ <strong>POST /admin/sectors</strong> - Create new sector</li>
             <li>📦 <strong>GET /admin/businesses</strong> - List all businesses</li>

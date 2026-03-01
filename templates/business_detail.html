@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
     .rating-form { margin: 2rem 0; padding: 1.5rem; background-color: #2a2a2a; border-radius: 8px; border: 1px solid #333; }
-    .stars { font-size: 2rem; }
+    .stars { font-size: 2rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
     .star-btn {
         background: none;
         border: none;
@@ -19,6 +19,24 @@
     .rating-item { border-top: 1px solid #444; padding: 1rem 0; }
     .rating-item:first-child { border-top: none; }
     .rating-score { font-weight: bold; color: #f39c12; }
+
+    @media (max-width: 640px) {
+        .rating-form {
+            margin: 1.25rem 0;
+            padding: 1rem;
+        }
+
+        .star-btn {
+            font-size: 1.6rem;
+            padding: 0.35rem;
+        }
+
+        .rating-item > div {
+            flex-direction: column;
+            gap: 0.3rem;
+            align-items: flex-start;
+        }
+    }
 </style>
 {% endblock %}
 

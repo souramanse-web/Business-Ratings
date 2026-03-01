@@ -9,23 +9,19 @@ def client():
         yield client
 
 
-def test_chat(client):
-    resp = client.post('/chat', json={'message': 'hi'})
-    assert resp.status_code == 200
-    assert 'response' in resp.get_json()
-
-
-def test_alert_missing(client):
-    resp = client.post('/alert', json={})
-    assert resp.status_code == 400
-
-# predictions and alerts require network and yfinance; skip in CI
-def test_predict_no_symbol(client):
-    resp = client.post('/predict', json={})
-    assert resp.status_code == 400
-
-
 def test_index(client):
     resp = client.get('/')
     assert resp.status_code == 200
     assert b'<title>' in resp.data
+
+
+def test_api_businesses(client):
+    resp = client.get('/api/businesses')
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), list)
+
+
+def test_404_handler(client):
+    resp = client.get('/route-that-does-not-exist')
+    assert resp.status_code == 404
+    assert resp.get_json().get('error') == 'Not found'

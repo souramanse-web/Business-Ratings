@@ -30,6 +30,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
@@ -54,6 +56,7 @@
             display: flex;
             gap: 2rem;
             list-style: none;
+            flex-wrap: wrap;
         }
         
         .nav-links a {
@@ -121,7 +124,7 @@
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1.5rem;
         }
         
@@ -218,6 +221,7 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .lang-btn {
@@ -244,34 +248,40 @@
             color: #000;
         }
 
-        .burkina-flag {
+        .africa-map {
             position: fixed;
             top: 1rem;
             right: 1rem;
-            width: 76px;
-            height: 48px;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-            background: linear-gradient(to bottom, #ef2b2d 0 50%, #009e49 50% 100%);
+            width: 72px;
+            height: 86px;
             z-index: 1000;
-            animation: floatFlag 3.5s ease-in-out infinite;
+            animation: floatMap 3.5s ease-in-out infinite;
             pointer-events: none;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+            background: #f39c12;
+            clip-path: polygon(
+                34% 2%, 43% 6%, 48% 13%, 56% 19%, 66% 28%, 70% 36%,
+                68% 45%, 63% 53%, 64% 61%, 69% 69%, 70% 77%, 63% 84%,
+                57% 89%, 55% 98%, 46% 96%, 42% 90%, 36% 86%, 28% 82%,
+                25% 75%, 19% 68%, 15% 58%, 11% 48%, 13% 39%, 16% 30%,
+                21% 22%, 26% 14%, 31% 8%
+            );
         }
 
-        .burkina-flag::before {
-            content: '★';
+        .africa-map::before {
+            content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fcd116;
-            font-size: 19px;
-            line-height: 1;
+            width: 14px;
+            height: 14px;
+            right: 14px;
+            bottom: 8px;
+            border-radius: 50%;
+            background: #f39c12;
+            transform: rotate(16deg);
         }
 
 
-        @keyframes floatFlag {
+        @keyframes floatMap {
             0%, 100% {
                 transform: translateY(0);
             }
@@ -288,11 +298,74 @@
         a:hover {
             text-decoration: underline;
         }
+
+        @media (max-width: 900px) {
+            nav {
+                align-items: flex-start;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .africa-map {
+                width: 52px;
+                height: 64px;
+                top: 0.6rem;
+                right: 0.6rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 0.75rem 0;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .logo {
+                justify-content: center;
+                text-align: center;
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                justify-content: center;
+                gap: 0.9rem;
+                font-size: 0.95rem;
+            }
+
+            .language-switcher {
+                justify-content: center;
+            }
+
+            .container {
+                margin: 1.25rem auto;
+                padding: 0 0.75rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .africa-map {
+                display: none;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="burkina-flag" aria-label="Burkina Faso Flag" title="Burkina Faso"></div>
+    <div class="africa-map" aria-label="Gold Africa map" title="Gold Africa map"></div>
     <header>
         <nav>
             <div class="logo">
