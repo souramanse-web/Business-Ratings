@@ -6,6 +6,8 @@ A Flask app to rate businesses by sector with user authentication and admin pane
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from sqlalchemy import inspect
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
@@ -40,6 +42,7 @@ else:
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+db_ready_checked = False
 
 # =====================
 # Context Processors & Utilities
@@ -58,6 +61,17 @@ def inject_user():
 @app.before_request
 def set_language():
     """Set language from session or default to English"""
+    global db_ready_checked
+
+    if is_production and not db_ready_checked:
+        try:
+            inspector = inspect(db.engine)
+            if not inspector.has_table('user'):
+                ensure_database_ready()
+            db_ready_checked = True
+        except SQLAlchemyError:
+            db.session.rollback()
+
     if 'lang' not in session:
         session['lang'] = 'en'
 
