@@ -165,6 +165,32 @@ The server will start on `http://localhost:5000`
 - **GET `/admin/businesses`** – List all businesses
 - **POST `/admin/businesses`** – Create new business
 - **DELETE `/admin/business/<id>`** – Delete a business
+- **GET `/admin/data-health`** – Data baseline and warning summary
+
+## Preventing Missing Businesses (Recommended)
+
+Use these two checks regularly so local and cloud stay aligned:
+
+1. **Admin data health endpoint**
+  - URL: `/admin/data-health` (admin login required)
+  - Shows current counts, baseline minimums, and warnings when counts fall below baseline.
+
+2. **Weekly parity check script**
+  - File: `weekly_data_check.py`
+  - Compares local vs remote business counts and exits with warning code if different.
+
+Run manually:
+
+```bash
+.\venv\Scripts\python.exe weekly_data_check.py --remote-url https://business-rating-app.onrender.com
+```
+
+Return codes:
+- `0` = counts are aligned (`CHECK_STATUS=OK`)
+- `1` = mismatch warning (`CHECK_STATUS=WARNING`)
+- `2` = check error (`CHECK_STATUS=ERROR`)
+
+Tip: schedule this weekly in Windows Task Scheduler and alert on non-zero exit code.
 
 ## Making a User Admin
 

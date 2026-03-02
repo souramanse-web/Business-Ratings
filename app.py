@@ -44,6 +44,32 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 db_ready_checked = False
 
+
+def get_data_health_summary():
+    expected_minimums = {
+        'sectors': 7,
+        'businesses': 13,
+    }
+    current_counts = {
+        'sectors': Sector.query.count(),
+        'businesses': Business.query.count(),
+        'ratings': Rating.query.count(),
+        'users': User.query.count(),
+    }
+    warnings = []
+
+    if current_counts['sectors'] < expected_minimums['sectors']:
+        warnings.append('Sector count is below expected baseline')
+    if current_counts['businesses'] < expected_minimums['businesses']:
+        warnings.append('Business count is below expected baseline')
+
+    return {
+        'status': 'warning' if warnings else 'ok',
+        'current_counts': current_counts,
+        'expected_minimums': expected_minimums,
+        'warnings': warnings,
+    }
+
 # =====================
 # Context Processors & Utilities
 # =====================
@@ -377,6 +403,15 @@ def business_detail(business_id):
 @app.route('/healthz', methods=['GET'])
 def healthz():
     return jsonify({'status': 'ok'}), 200
+
+
+@app.route('/admin/data-health', methods=['GET'])
+@login_required
+def admin_data_health():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    return jsonify(get_data_health_summary()), 200
 
 
 # =====================
